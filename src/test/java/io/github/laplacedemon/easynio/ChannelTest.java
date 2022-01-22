@@ -14,7 +14,6 @@ public class ChannelTest {
     public void connect() throws IOException, InterruptedException {
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 19000);
         NIOEventLoop ioEventLoop = new NIOEventLoop();
-        ioEventLoop.open();
         new Thread(ioEventLoop).start();
 
         Channel channel = new Channel(ioEventLoop);
@@ -41,7 +40,6 @@ public class ChannelTest {
 
         InetSocketAddress address = new InetSocketAddress("127.0.0.1", 19000);
         NIOEventLoop ioEventLoop = new NIOEventLoop();
-        ioEventLoop.open();
         new Thread(ioEventLoop).start();
 
         Channel channel = new Channel(ioEventLoop);
@@ -74,11 +72,11 @@ public class ChannelTest {
 
     @Test
     public void accept() {
-        ChannelAcceptor channelAcceptor = new ChannelAcceptor();
-        channelAcceptor.bind(19000);
-
-        channelAcceptor.loopAccept(ch-> {
-            System.out.println("client has been accepted. " + ch);
-        });
+//        ChannelAcceptor channelAcceptor = new ChannelAcceptor();
+//        channelAcceptor.bind(19000);
+//
+//        channelAcceptor.loopAccept(ch-> {
+//            System.out.println("client has been accepted. " + ch);
+//        });
     }
 }

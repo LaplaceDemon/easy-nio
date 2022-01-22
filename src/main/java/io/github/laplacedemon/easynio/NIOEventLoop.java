@@ -15,7 +15,7 @@ public class NIOEventLoop implements Runnable {
     private Selector selector;
     private MPSCQueue<RegisterEvent> userEventQueue = MPSCQueueFactory.createMPSCConcurrentQueue();
 
-    public void open() throws IOException {
+    public NIOEventLoop() throws IOException {
         selector = Selector.open();
     }
 
@@ -75,4 +75,5 @@ public class NIOEventLoop implements Runnable {
             }
         }
     }
+
 }

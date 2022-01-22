@@ -19,6 +19,11 @@ public class Channel {
         this.ioLoop = ioLoop;
     }
 
+    public void open(SocketChannel socketChannel) throws IOException {
+        this.socketChannel = socketChannel;
+        socketChannel.configureBlocking(false);
+    }
+
     public void open() throws IOException {
         socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
@@ -45,16 +50,23 @@ public class Channel {
     public void write(ByteBuffer wb, Consumer<Integer> writeConsumer) throws IOException {
         ioLoop.register(socketChannel, SelectionKey.OP_WRITE, new SelectionKeyConsumer() {
 
+            int hasWriteBytesNum;
+
             @Override
             public void accept(SelectionKey sKey) {
                 int writeBytesNum = 0;
                 try {
                     writeBytesNum = socketChannel.write(wb);
+                    hasWriteBytesNum += writeBytesNum;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                writeConsumer.accept(writeBytesNum);
+                if (wb.remaining() == 0) {
+                    writeConsumer.accept(writeBytesNum);
+                    sKey.interestOps(0);
+                    sKey.attach(null);
+                }
             }
         });
     }
@@ -66,7 +78,7 @@ public class Channel {
             public void accept(SelectionKey sKey) {
                 int readBytesNum = 0;
                 try {
-                    readBytesNum = socketChannel.write(rb);
+                    readBytesNum = socketChannel.read(rb);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
