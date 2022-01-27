@@ -25,6 +25,7 @@ public class ClientChannelWriteTest {
                     try {
                         channel.read(rb, ri -> {
                             try {
+                                channel.readComplete();
                                 System.out.println("has read :" + ri + ", content: " + new String(rb.array()));
                                 channel.close();
                             } catch (IOException e) {

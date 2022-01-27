@@ -5,11 +5,13 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class Channel {
     private SocketChannel socketChannel;
     private NIOEventLoop ioLoop;
+    private AtomicBoolean complete = new AtomicBoolean();
 
     public SocketChannel javaChannel() {
         return socketChannel;
@@ -39,7 +41,6 @@ public class Channel {
 
                 sKey.interestOps(0);
                 sKey.attach(null);
-//                sKey.cancel();
 
                 runnable.run();
             });
@@ -72,6 +73,7 @@ public class Channel {
     }
 
     public void read(ByteBuffer rb, Consumer<Integer> readConsumer) throws IOException {
+        complete.set(false);
         ioLoop.register(socketChannel, SelectionKey.OP_READ, new SelectionKeyConsumer() {
 
             @Override
@@ -84,11 +86,21 @@ public class Channel {
                 }
 
                 readConsumer.accept(readBytesNum);
+
+                if (complete.get()) {
+                    sKey.interestOps(0);
+                    sKey.attach(null);
+                }
             }
         });
     }
 
+    public void readComplete() {
+        complete.set(true);
+    }
+
     public void close() throws IOException {
+        complete.set(false);
         socketChannel.close();
     }
 }
